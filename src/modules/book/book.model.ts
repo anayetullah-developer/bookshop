@@ -1,6 +1,12 @@
 import mongoose, { Schema } from "mongoose";
+import { Category, IBook } from "./book.interface";
 
-const BookSchema = new Schema({
+const BookSchema = new Schema<IBook>({
+
+    _id: {
+        type: mongoose.Schema.Types.ObjectId,
+        default: () => new mongoose.Types.ObjectId(), 
+      },
 
     title: {
         type: String,
@@ -22,10 +28,8 @@ const BookSchema = new Schema({
     category : {
         type : String,
         required: [true, 'Category is required'],
-        enum: {
-            values : ['Fiction', 'Science', 'SelfDevelopment', 'Poetry', 'Religious'],
-            message: '{VALUE} is not a valid category'
-        }
+        enum: Object.values(Category), 
+        message: '{VALUE} is not a valid category',
     },
 
     description : {
@@ -45,13 +49,12 @@ const BookSchema = new Schema({
         required: true,
         default: true
     }
-})
+}, 
+{
+    timestamps: true, 
+}
+)
 
 
-BookSchema.pre('save', function (next) {
-    this.inStock = this.quantity > 0;
-    next();
-})
-
-export default mongoose.model('book', BookSchema)
+export default mongoose.model<IBook>('book', BookSchema)
 

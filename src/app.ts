@@ -1,14 +1,15 @@
 import express, {Request, Response} from 'express';
-import bookRouter from './modules/book/book.rourte';
+import bookRouter from './modules/book/book.route';
+import orderRouter from './modules/order/order.route';
 
 const app = express();
 
 app.use(express.json())
 
+app.use('/api/products', bookRouter);
+app.use('/api/orders/', orderRouter);
 
-app.use('/api/products', bookRouter),
-// app.use('/api/orders/')
-
+// Validation Error Middleware should be added after routes
 
 app.get('/', (req: Request, res : Response) => {
     res.send({

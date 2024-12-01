@@ -1,55 +1,82 @@
-import { Request, Response } from "express"
+import { Request, Response } from "express";
 import { bookService } from "./book.service";
+import { IBook } from "./book.interface"; 
 
-const createBook = async (req: Request, res: Response) => {
+const handleError = (res: Response, error: unknown) => {
+    if (error instanceof Error) {
+        return res.status(500).json({ success: false, message: error.message });
+    }
+    return res.status(500).json({ success: false, message: "Internal Server Error" });
+};
+
+const createBook = async (req: Request, res: Response): Promise<void> => {
     try {
-        const newBook = await bookService.createBook(req.body);
-        res.status(201).json({success: true, data: newBook})
-    }catch(error : any) {
-        res.status(400).json({success: false, message: error.message})
+        const newBook: IBook = await bookService.createBook(req.body); 
+        res.status(201).json({message: "Book created successfully", success: true, data: newBook });
+    } catch (error: unknown) {
+        handleError(res, error);
     }
-}
+};
 
-const getAllBook = async (req: Request, res: Response) => {
+const getAllBook = async (req: Request, res: Response): Promise<void> => {
+    const { searchTerm } = req.query; 
     try {
-        const books = await bookService.getAllBook();
-        res.status(200).json({success: true, data: books});
-    }catch(error: any) {
-        res.status(400).json({success: false, message: error.message})
-    }
+        const books: IBook[] = await bookService.getAllBook(searchTerm as string);
+
+        res.status(200).json({ message: "Books retrieved successfully", success: true, data: books });
+    } catch (error: unknown) {
+        handleError(res, error); 
+};
+
 }
 
-const getSingleBook = async (req: Request, res: Response) => {
-    try{
-        const book = await bookService.getSingleBook(req.params.id);
-        res.status(200).json({success: true, data: book});
-    }catch(error: any) {
-        res.status(400).json({success: false, message: error.message});
-    }
-}
-
-const updateBook = async (req: Request, res: Response) => {
+const getSingleBook = async (req: Request, res: Response) : Promise<string | any> => {
     try {
-        const updatedBook = await bookService.updateBook(req.params.id, req.body);
-        res.status(200).json({success: true, data: updatedBook});
-    }catch(error: any) {
-        res.status(400).json({success: false, message: error.message});
+        const book: IBook | null = await bookService.getSingleBook(req.params.id);
+        console.log(book)
+        if (!book) {
+            return res.status(404).json({ success: false, message: "Book not found" });
+        }
+        res.status(200).json({
+            message: "Book retrieved successfully",
+            success: true,
+            data: book
+        });
+    }catch (error: unknown) {
+        handleError(res, error); 
     }
-}
+};
 
-const deleteBook = async (req: Request, res: Response) => {
+
+const updateBook = async (req: Request, res: Response) : Promise<string | any> =>  {
     try {
-        const result = await bookService.deleteBook(req.params.id);
-        res.status(200).json({success: true, message: 'Book has been deleted successfully'});
-    }catch(error: any) {
-        res.status(400).json({success: false, message: error.message});
+        const updatedBook: IBook | null = await bookService.updateBook(req.params.id, req.body);
+        if (!updatedBook) {
+            return res.status(404).json({success: false, message: "Book not found" });
+        }
+        res.status(200).json({message: "Book updated successfully", success: true, data: updatedBook });
+    } catch (error: unknown) {
+        handleError(res, error);
     }
-}
+};
+
+
+const deleteBook = async (req: Request, res: Response): Promise<string | any> => {
+    try {
+        const result: IBook | null = await bookService.deleteBook(req.params.id);
+        if (!result) {
+            return res.status(404).json({ success: false, message: "Book not found" });
+        }
+        res.status(200).json({message: "Book deleted successfully", success: true, data: {} });
+    } catch (error: unknown) {
+        handleError(res, error);
+    }
+};
 
 export const bookController = {
     createBook,
     getAllBook,
     getSingleBook,
     updateBook,
-    deleteBook
+    deleteBook,
 }
