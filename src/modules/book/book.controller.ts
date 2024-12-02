@@ -2,7 +2,7 @@ import { Request, Response } from 'express';
 import { bookService } from './book.service';
 import { IBook } from './book.interface';
 
-const handleError = (res: Response, error: unknown) => {
+const handleError = (res: Response, error: any) => {
   if (error) {
     return res.status(500).json({ success: false, message: error.message });
   }
@@ -21,7 +21,7 @@ const createBook = async (req: Request, res: Response): Promise<void> => {
         success: true,
         data: newBook,
       });
-  } catch (error: unknown) {
+  } catch (error: any) {
     handleError(res, error);
   }
 };
