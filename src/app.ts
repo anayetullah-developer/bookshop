@@ -1,22 +1,19 @@
-import express, {Request, Response} from 'express';
+import express, { Request, Response } from 'express';
 import bookRouter from './modules/book/book.route';
 import orderRouter from './modules/order/order.route';
 
 const app = express();
 
-app.use(express.json())
+app.use(express.json());
 
 app.use('/api/products', bookRouter);
 app.use('/api/orders/', orderRouter);
 
-// Validation Error Middleware should be added after routes
-
-app.get('/', (req: Request, res : Response) => {
-    res.send({
-        status : true,
-        message: "Server Live"
-    })
-})
-
+app.get('/', (req: Request, res: Response) => {
+  res.send({
+    status: true,
+    message: 'Server Live',
+  });
+});
 
 export default app;
